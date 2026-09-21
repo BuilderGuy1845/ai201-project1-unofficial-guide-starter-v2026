@@ -63,15 +63,6 @@ than one topic, not just a chunker producing more output for its own sake.
 
 ## Sample Chunks
 
-<!-- Five chunks, pasted as text. Label each one and name the file it came from
-     AND the function that produced it — the grader checks your code against
-     what you claim here.
-
-     `python app.py chunks -n 5` prints all three for you. Copy them straight
-     across.
-
-     Milestone 3. -->
-
 **Chunk 1** — source: `admin_grade_appeals.txt#0` — produced by: `chunker.py::split_documents`
 
 ```
