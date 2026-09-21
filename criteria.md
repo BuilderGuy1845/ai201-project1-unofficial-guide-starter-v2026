@@ -23,8 +23,10 @@ For at least 4 of my 5 test questions, the retrieved chunks include one that
 contains the answer.
 
 **Why this target:**
-<!-- e.g. "One of my questions is about a topic only two documents mention, so
-     I expect that one to be hard." -->
+
+One of my questions (Fenwick laundry timing) draws on a single short doc, so
+I expect it to be easy, but I set 4/5 instead of 5/5 in case a distance tie
+pulls in a sibling laundry doc from a different building.
 
 ---
 
@@ -33,8 +35,9 @@ contains the answer.
 Every answer the system produces names at least one source document.
 
 **Why this target:**
-<!-- Why all five and not four? What about your setup makes that achievable —
-     or what would have to go wrong for it not to be? -->
+
+I expect all 5 since generate.py is built to always cite its source chunks —
+the only way this fails is a bug, not a hard question.
 
 ---
 
@@ -50,48 +53,43 @@ in at least 4 of 5 tries.
      just keep five of them, or the "4 of 5" above has nothing to be 4 of. -->
 
 **Why this target:**
-<!-- What did your distances look like when you set the cutoff in Milestone 4?
-     Was there a clean gap, or did the two groups overlap? -->
+
+My five test questions topped out at a best distance of 0.374; the five
+`OUT_OF_SCOPE` questions never dropped below 0.803 — a wide, clean gap with
+nothing near the middle. I kept the default cutoff of 0.6 since it already
+sits almost exactly in that gap. I still set 4/5 and not 5/5 because the gate
+only guards against distance, not phrasing — the actual boundary case I found
+was a question the gate correctly let through (best distance 0.456) where the
+documents were silent on part of the answer, which is a different failure
+mode from what this criterion measures.
 
 ---
 
 ## 4. Something about your chunks
 
-<!-- YOU WRITE THIS ONE.
-
-     How would you know if your chunks were the right size? Name something
-     countable or observable.
-
-     Examples of the right shape — don't copy these, they should come from
-     what you actually saw in Milestone 3:
-       - "At least 4 of 5 sampled chunks read as a complete thought, with no
-          sentence cut in half at either end."
-       - "No chunk is shorter than 200 characters, since anything below that
-          in my corpus turned out to be a heading with no content under it." -->
-
-
+At least 4 of 5 sampled chunks read as a complete thought, with no sentence
+cut in half at either end.
 
 **Why this target:**
 
-
+I picked 4 of 5 and not 5 of 5 because the fallback chunker splits on
+paragraph/length rules, not sentence boundaries, so a longer doc could still
+get cut wrong even if most don't.
 
 ---
 
 ## 5. Your choice
 
-<!-- YOU WRITE THIS ONE TOO.
-
-     Pick something you actually care about getting right. It could be about
-     speed, about refusals, about a particular kind of question your corpus
-     handles badly, about source attribution being correct rather than merely
-     present — anything, as long as it names a number or an observable
-     outcome. -->
-
-
+For at least 4 of my 5 test questions, the source named in the answer is the
+document that actually contains the fact — not just any retrieved chunk.
 
 **Why this target:**
 
-
+I picked 4 of 5 and not 5 of 5 because campus_life has sibling documents on
+the same topic (e.g. dining_halden_hall.txt and
+dining_halden_hall_followup.txt, or the three housing_*_laundry/_noise files
+per building) — it's plausible for the model to cite a related-but-wrong
+sibling instead of the doc that actually contains the fact.
 
 ---
 
