@@ -94,6 +94,12 @@ def split_documents(documents: list[Document]) -> list[Chunk]:
     alone as an uninformative chunk — this is what keeps a document's title
     from becoming its own useless chunk, and stops a short trailing paragraph
     from becoming a fragment.
+
+    The title paragraph only ever ends up in the first chunk this way — every
+    later chunk from a multi-chunk document is otherwise title-blind (e.g.
+    "It's front-loaded..." with no mention of which course that's about). So
+    the title, when there is a short one, gets carried forward into every
+    later chunk too.
     """
     min_chars = config.CHUNK_SIZE
     chunks: list[Chunk] = []
@@ -102,6 +108,8 @@ def split_documents(documents: list[Document]) -> list[Chunk]:
         paragraphs = [p.strip() for p in doc.text.split("\n\n") if p.strip()]
         if not paragraphs:
             continue
+
+        title = paragraphs[0] if len(paragraphs[0]) < min_chars else None
 
         groups: list[str] = []
         buffer = paragraphs[0]
@@ -118,6 +126,10 @@ def split_documents(documents: list[Document]) -> list[Chunk]:
         if len(groups) > 1 and len(groups[-1]) < min_chars:
             groups[-2] = f"{groups[-2]}\n\n{groups[-1]}"
             groups.pop()
+
+        if title is not None:
+            for i in range(1, len(groups)):
+                groups[i] = f"{title}\n\n{groups[i]}"
 
         for index, text in enumerate(groups):
             chunks.append(
