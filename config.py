@@ -24,11 +24,24 @@ CORPUS = os.getenv("AI201_CORPUS", "campus_life")
 
 
 # ─── Chunking (Milestone 3) ──────────────────────────────────────────────────
-# These are deliberately plain, generic numbers. Milestone 3 is where you
-# replace them with numbers that fit the documents you actually read.
-
-CHUNK_SIZE = 800        # characters per chunk
-CHUNK_OVERLAP = 120     # characters shared between neighbouring chunks
+# campus_life posts are a title plus a few short, single-topic paragraphs
+# (background / the good / the bad / laundry+noise, etc). Splitting on blank
+# lines keeps each chunk to one topic instead of blurring them together, and
+# never cuts a sentence in half the way a fixed character window does.
+#
+# CHUNK_SIZE is repurposed here as a *minimum* paragraph length: anything
+# shorter (a bare title line, a one-clause stub) gets merged into its
+# neighbour rather than standing alone as an uninformative chunk. 100 was
+# chosen because doc bodies run 178-549 chars split across 2-5 paragraphs,
+# so individual paragraphs are often 60-150 chars — 100 catches heading-only
+# fragments without merging real single-sentence facts like "Expect 8 to 10
+# hours a week outside class."
+#
+# CHUNK_OVERLAP is unused by this strategy: paragraph breaks are already
+# natural, sentence-complete boundaries, so there's no risk of splitting a
+# thought across two chunks the way a character window does.
+CHUNK_SIZE = 100         # minimum characters per chunk before merging forward
+CHUNK_OVERLAP = 0        # unused by paragraph-based splitting
 
 
 # ─── Retrieval (Milestone 4) ─────────────────────────────────────────────────

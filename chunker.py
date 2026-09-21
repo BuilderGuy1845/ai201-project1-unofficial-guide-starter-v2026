@@ -82,22 +82,54 @@ def fallback_split(
 
 def split_documents(documents: list[Document]) -> list[Chunk]:
     """
-    Split documents into chunks. ⚠️ REPLACE THE BODY OF THIS IN MILESTONE 3.
+    Split on paragraph breaks instead of a fixed character count.
 
-    Right now it just calls the fallback. That is the plain, generic behaviour
-    the brief is talking about.
+    campus_life posts are a title plus a few short, single-topic paragraphs
+    (background / the good / the bad / laundry+noise). A paragraph break is
+    already a real boundary between thoughts, so splitting there never cuts a
+    sentence in half the way fallback_split's fixed window does.
 
-    When you write your own strategy, set `produced_by` to
-    "chunker.py::split_documents" so your README's Sample Chunks section names
-    the right function. `app.py chunks` prints that string for you.
-
-    Things worth thinking about before you write any code:
-      - Are your documents short posts or long guides?
-      - Is the useful information in one sentence, or spread over a paragraph?
-      - Would splitting on paragraph breaks keep more thoughts intact than
-        splitting on a character count?
+    A paragraph shorter than config.CHUNK_SIZE (a bare title line, a one-clause
+    stub) gets merged forward into the next paragraph instead of standing
+    alone as an uninformative chunk — this is what keeps a document's title
+    from becoming its own useless chunk, and stops a short trailing paragraph
+    from becoming a fragment.
     """
-    return fallback_split(documents)
+    min_chars = config.CHUNK_SIZE
+    chunks: list[Chunk] = []
+
+    for doc in documents:
+        paragraphs = [p.strip() for p in doc.text.split("\n\n") if p.strip()]
+        if not paragraphs:
+            continue
+
+        groups: list[str] = []
+        buffer = paragraphs[0]
+        for para in paragraphs[1:]:
+            if len(buffer) < min_chars:
+                buffer = f"{buffer}\n\n{para}"
+            else:
+                groups.append(buffer)
+                buffer = para
+        groups.append(buffer)
+
+        # A short trailing group has no later paragraph to merge into —
+        # fold it back into the previous one instead of leaving a fragment.
+        if len(groups) > 1 and len(groups[-1]) < min_chars:
+            groups[-2] = f"{groups[-2]}\n\n{groups[-1]}"
+            groups.pop()
+
+        for index, text in enumerate(groups):
+            chunks.append(
+                Chunk(
+                    text=text,
+                    source=doc.source,
+                    index=index,
+                    produced_by="chunker.py::split_documents",
+                )
+            )
+
+    return chunks
 
 
 def describe(chunks: list[Chunk]) -> str:

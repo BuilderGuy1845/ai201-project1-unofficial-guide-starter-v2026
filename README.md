@@ -29,18 +29,35 @@
 
 ## Chunking Strategy
 
-**Chunk size:**
-**Overlap:**
+**Chunk size:** Paragraph-based, not a fixed character count — split on blank
+lines, with a 100-character minimum before a paragraph gets merged into its
+neighbor.
+**Overlap:** 0 (unused by this strategy — see below).
 
-<!-- What about YOUR documents made you pick these numbers? Short posts and
-     long sectioned guides don't want the same chunking, and "800 seemed
-     reasonable" earns nothing. Point at something you noticed when you read
-     the documents in Milestone 1.
+The starter's 800-character window never split anything in campus_life: 88
+documents went in, 88 chunks came out, because almost no post reaches 800
+characters. But reading documents in Milestone 1 (`housing_old_brewhouse.txt`
+is a good example) showed that a post isn't really one thought — it's a title
+plus several short, single-topic paragraphs: background, the good, the bad,
+laundry+noise. A question about heating only needs "the bad" paragraph, not
+the other three glued to it. Treating the whole post as one chunk was
+diluting exactly the kind of specific question this corpus is good at
+answering.
 
-     If you changed your mind partway through, say so and say why. That's worth
-     more than pretending you got it right first time.
+So `split_documents` (in `chunker.py`) splits on blank lines instead, which
+never cuts a sentence in half the way a fixed character window can. The one
+risk that introduces is a fragment — a bare title line or a one-clause stub
+standing alone as its own useless chunk, the same failure mode that produced
+`advice_threads`' 2-character tail chunk under the fallback chunker. The
+100-character minimum (repurposing `config.CHUNK_SIZE`) merges anything that
+short into its neighbor, which is why the title never survives as a separate
+chunk. `CHUNK_OVERLAP` is unused because paragraph breaks are already natural,
+sentence-complete boundaries — there's no shared context to carry across them
+the way there is with a character window.
 
-     Milestone 3. -->
+Re-indexing with this strategy turned 88 chunks into 143 (average 194
+characters, range 100–409) — evidence that documents really were holding more
+than one topic, not just a chunker producing more output for its own sake.
 
 ## Sample Chunks
 
