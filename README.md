@@ -70,57 +70,88 @@ than one topic, not just a chunker producing more output for its own sake.
 
      Milestone 3. -->
 
-**Chunk 1** — source: `` — produced by: ``
+**Chunk 1** — source: `admin_grade_appeals.txt#0` — produced by: `chunker.py::split_documents`
 
 ```
+On the grade appeals
+
+A grade appeal starts with the instructor and has to be raised within fifteen days of the grade posting. Only after that does it go to the department. Skipping the instructor step gets the appeal returned, which wastes most of the fifteen days.
 ```
 
-**Chunk 2** — source: `` — produced by: ``
+**Chunk 2** — source: `course_cs_210.txt#1` — produced by: `chunker.py::split_documents`
 
 ```
+Expect 8 to 10 hours a week outside class.
+
+The one piece of advice: do the labs even though they're only 10% — the exams reuse the lab problems.
 ```
 
-**Chunk 3** — source: `` — produced by: ``
+**Chunk 3** — source: `housing_morrow_house.txt#1` — produced by: `chunker.py::split_documents`
 
 ```
+The good: cheapest housing tier by about $900 a year, and the singles are real singles.
+
+The bad: known damp problem on the ground floor; two rooms were taken offline in 2024.
 ```
 
-**Chunk 4** — source: `` — produced by: ``
+**Chunk 4** — source: `dining_kestrel_commons.txt#1` — produced by: `chunker.py::split_documents`
 
 ```
+Hours are 7:00am to 9:00pm weekdays, 9:00am to 8:00pm weekends. Costs one meal swipe, or $12.50 cash.
 ```
 
-**Chunk 5** — source: `` — produced by: ``
+**Chunk 5** — source: `dining_verrill_street_grill_followup.txt#1` — produced by: `chunker.py::split_documents`
 
 ```
+Also worth saying: one register, so the queue is a single line no matter how busy. Nobody tells you this at orientation.
 ```
 
 ## Sample Answer
 
-<!-- One complete question and answer, pasted as text, with the source line
-     visible. Milestone 4. -->
-
-**Question:**
+**Question:** What happens if I drop a class after week two?
 
 **Answer:**
 
 ```
+If you drop a class after week two, it shows as a W on your transcript (admin_add_drop_deadline.txt).
+
+Sources retrieved: admin_add_drop_deadline.txt, admin_grade_appeals.txt, admin_pass_fail_option.txt, admin_withdrawal_deadline.txt, course_stat_150.txt
 ```
 
-**My relevance cutoff:**
+Worth noting: top-k=5 means the model was handed four chunks that weren't
+actually relevant (pass/fail, grade appeals, a course workload line) alongside
+the one that was. It still answered from only `admin_add_drop_deadline.txt`
+and didn't blend in the unrelated material — the grounding instruction held
+even with noise in the context, not just when the context was clean.
 
-<!-- The number you set in config.py, and how you got there.
+**My relevance cutoff:** 0.6 (the starter default — I measured my own two
+groups and it already sat almost exactly in the gap, so I kept it rather than
+moving it for its own sake).
 
-     You ran five questions your corpus covers and the five in OUT_OF_SCOPE
-     that it clearly doesn't, and wrote down the best distance for each. What
-     did those two groups look like? Where was the gap? Put the actual numbers
-     here — the table below wants all ten rows.
-
-     Milestone 4. -->
+My five test questions topped out at 0.374 best distance; my five
+`OUT_OF_SCOPE` questions never dropped below 0.803. That's a wide, clean gap
+with nothing near the middle, so 0.6 isn't a fragile choice — it would still
+separate the two groups correctly anywhere roughly between 0.45 and 0.7. I
+also tried a harder case than either group: "Does dropping a class after week
+two hurt my GPA?" (best distance 0.456, so it clears the gate) — the docs
+don't actually say, and the model correctly answered "there is no mention of
+whether dropping a class after week two affects your GPA" instead of guessing
+from what it already knows about how GPA usually works. That's the second
+grounding layer doing its job on a question the gate alone would have let
+through.
 
 | Question | In corpus? | Best distance |
 |---|---|---|
-|  |  |  |
+| When's the best time to do laundry at Fenwick Court? | Yes | 0.296 |
+| How fast do west lot parking permits sell out? | Yes | 0.244 |
+| Do dining dollars roll over to the next school year? | Yes | 0.264 |
+| What are wait times like at Halden Hall dining? | Yes | 0.205 |
+| What happens if I drop a class after week two? | Yes | 0.374 |
+| What is the capital of Mongolia? | No | 0.825 |
+| How do I change the oil in a diesel engine? | No | 0.923 |
+| Who won the 1994 World Cup? | No | 0.874 |
+| What is the recommended dosage of ibuprofen for a headache? | No | 0.803 |
+| How do I write a for loop in Rust? | No | 0.877 |
 
 ## How I Used AI
 
