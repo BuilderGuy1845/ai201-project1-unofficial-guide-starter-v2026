@@ -1,6 +1,6 @@
 # The Unofficial Guide
 
-<!-- Replace this line with your name and which corpus you picked. -->
+Kaden — corpus: `campus_life`.
 
 > **This file is your submission.** Fill it in as you go — most sections get
 > written during the milestone that produces them, not at the end.
@@ -21,11 +21,13 @@
 
 ## What This Does
 
-<!-- Three or four sentences. Which corpus you picked, and the kinds of
-     questions your system answers. Write it for someone who has never seen
-     this repo.
-
-     Milestone 5. -->
+This is a question-answering system over `campus_life`, a corpus of 88 short
+student posts about dining halls, dorms, courses, and the administrative
+rules nobody explains properly. Ask it something concrete — wait times at a
+specific dining hall, a deadline, a course's workload, laundry timing in a
+specific building — and it retrieves the posts that actually cover it,
+answers using only what's in them, and names the source file. Ask it
+something the corpus doesn't cover and it says so instead of guessing.
 
 ## Chunking Strategy
 
@@ -155,23 +157,19 @@ through.
 
 ## How I Used AI
 
-<!-- Two specific moments. For each: what you asked for, what came back, and
-     what you changed about it.
+**1.** I asked Claude to design a chunking strategy for campus_life. It
+proposed splitting on paragraph breaks with short paragraphs merged into
+their neighbor, but left the minimum-length threshold as a choice between
+60/100/150 characters. I picked 100 because 150 would have merged real
+single-sentence facts (like the CS 210 workload line) into unrelated
+neighbors, and 60 barely changed anything from the raw paragraph structure.
 
-     "I asked Claude to write the chunking function from my notes. It ignored
-     the overlap, so I added that myself" is the level of detail we're after.
-     "I used AI to help me code" is not.
-
-     Milestone 5. -->
-
-**1.**
-
-**2.**
-
-<!-- ── Stretch features ─────────────────────────────────────────────────────
-     Doing one? Say so here BEFORE you start. A feature this README never
-     claims earns nothing.
-     ───────────────────────────────────────────────────────────────────────── -->
+**2.** I asked Claude to pressure-test my five criteria by testing each one
+from the sentence alone, the way the milestone describes. It flagged that
+criterion 4's "complete thought" phrase was a soft judgment call, only
+checkable because it's paired with the objective "no sentence cut in half"
+clause. It offered to tighten the wording, but I decided the objective clause
+already did the real work, so I left criterion 4 as written.
 
 ---
 
