@@ -272,6 +272,37 @@ and it's what the improvement below targets.
 | 4 | Chunks read as complete thoughts | MET | 5 randomly sampled chunks, none cut off mid-sentence at either end. |
 | 5 | Cited source is the correct document | MET | For all 5 questions in all 3 runs, the filename named in the answer text was the document that actually contains the `expects` phrase. |
 
+**Pressure-testing these before calling them MET:** I'd only checked criterion 1
+against the *generated answers*, not the raw retrieved chunks — so I went
+back and confirmed the actual top-1 chunk text (not the model's paraphrase of
+it) contains each `expects` phrase directly. It does for all 5. This also
+surfaced a real weak spot in my own checking, not in the system: `expects =
+"W"` for the add/drop question is a single-character substring match, which
+is fragile in principle — a corpus with a stray capital W elsewhere in that
+document would have passed the check without actually containing the answer.
+I read the raw document and confirmed `admin_add_drop_deadline.txt` contains
+exactly one capital W, in "shows as a **W** on your transcript," so this
+particular verdict holds — but it holds because I checked, not because the
+check word was well chosen. I'd write a longer `expects` phrase (e.g. "a W on
+your transcript") if I were setting this up again.
+
+I also went back on criterion 5 for the Halden Hall question, since the
+system cited *two* documents (`dining_halden_hall.txt` and
+`dining_halden_hall_followup.txt`) rather than one. Read literally, the
+criterion asks whether "the document that actually contains the fact" is
+among what's cited — I checked the followup document directly and it
+independently states "the wait figure of rarely more than 8 minutes matches
+what I've seen," so both citations are genuinely correct, not one right
+answer padded with a wrong one.
+
+For criterion 4, five random chunks is a sample, not a proof, so I checked
+the structural claim against all 143 chunks (every chunk starts on an
+uppercase letter or digit and ends on sentence-ending punctuation): 0
+flagged. This isn't a coincidence — `split_documents` only ever concatenates
+whole paragraphs on `\n\n` boundaries, so cutting a sentence mid-way isn't a
+failure mode this chunker can produce, structurally, not just in the 5 cases
+I happened to sample.
+
 ## Diagnoses
 
 Nothing missed against the letter of any of the five criteria — every one hit
