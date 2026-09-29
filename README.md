@@ -162,6 +162,19 @@ checkable because it's paired with the objective "no sentence cut in half"
 clause. It offered to tighten the wording, but I decided the objective clause
 already did the real work, so I left criterion 4 as written.
 
+**3.** In unit 2, I asked Claude to argue against my own MET verdicts rather
+than take them at face value. It pointed out that I'd only checked criterion
+1 against the *generated answers*, not the raw retrieved chunks, and that my
+`expects = "W"` for the add/drop question was a single-character substring
+match — fragile in principle, since any stray capital W elsewhere in that
+document would have passed the check without the answer actually being
+there. I went back and read the raw document myself to confirm this specific
+case was genuinely correct (`admin_add_drop_deadline.txt` has exactly one
+capital W, in "shows as a W on your transcript"), and separately verified all
+143 chunks structurally rather than trusting my original 5-chunk sample. The
+verdicts didn't change, but the confidence behind them is real instead of
+assumed.
+
 ---
 
 # Unit 2
